@@ -1,7 +1,4 @@
-import { fakeAsync, tick } from '@angular/core/testing';
-import {TranslocoDirective, DefaultParser} from '../../public-api';
-import { createHostComponentFactory, SpectatorWithHost } from '@netbasal/spectator';
-import {providersMock} from "./transloco.mocks";
+import {DefaultParser} from '../../public-api';
 
 describe('TranslocoParser', () => {
 
