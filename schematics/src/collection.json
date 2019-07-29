@@ -5,7 +5,7 @@
       "aliases": ["init"],
       "factory": "./ng-add/",
       "schema": "./ng-add/schema.json",
-      "description": "Add root side effect class"
+      "description": "Add transloco configuration for root module."
     }
   }
 }

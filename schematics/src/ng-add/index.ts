@@ -27,7 +27,8 @@ function createTranslateFiles(langs: string[]): HostTree {
       lang + '.json',
       `
       {
-        
+        "hello": "transloco currentLanguage",
+        "dynamic": "transloco {{dynamic}}"
       }
     `
     );
@@ -114,7 +115,7 @@ export function HttpLoader(http: HttpClient) {
   const webpackTemplate = `
 export function WebpackLoader() {
   return function(lang: string) {
-    return import('../assets/langs/' + lang + '.json');
+    return import('../assets/i18n/' + lang + '.json').then(module => module.default);
   };
 }`;
 
@@ -141,17 +142,19 @@ export default function(options: SchemaOptions): Rule {
     const configProviderTemplate = `{
       provide: TRANSLOCO_CONFIG,
       useValue: {
-        runtime: true,
-        defaultLang: 'en'
+        runtime: false,
+        defaultLang: 'en',
+        prodMode: environment.production
       } as TranslocoConfig
     }`;
     let { loaderTemplate, loaderProvider } = getLoaderTemplates(options.loader);
 
     return chain([
+      mergeWith(translateFiles),
       options.loader === Loaders.Http
         ? addImportsToModuleFile(options, ['HttpClient'], '@angular/common/http')
         : noop(),
-      // mergeWith(translateFiles),
+      addImportsToModuleFile(options, ['environment'], '../environments/environment'),
       addImportsToModuleFile(options, ['TranslocoModule', 'TRANSLOCO_CONFIG', 'TRANSLOCO_LOADER']),
       addImportsToModuleDeclaration(options, ['TranslocoModule']),
       addProvidersToModuleDeclaration(options, [configProviderTemplate, loaderProvider]),
