@@ -16,17 +16,16 @@ describe('ng add', () => {
     appTree = await createWorkspace(schematicRunner, appTree);
   });
 
-  // it('should contain TranslocoModule in imports for default config', (done) => {
-  //   const options = { ...defaultOptions };
-  //
-  //   schematicRunner.runSchematicAsync('ng-add', options, appTree)
-  //     .subscribe(tree => {
-  //       console.log(appTree.readContent(appModulePath));
-  //       // const appModule = tree.readContent('./src/app/app.module.ts');
-  //       expect(appTree.readContent(appModulePath)).toMatch(
-  //         /import { TranslocoModule, httpLoader, TRANSLOCO_CONFIG, TranslocoConfig } from '@ngneat\/transloco';/
-  //       );
-  //       done();
-  //     });
-  // });
+  it('should contain TranslocoModule in imports for default config', done => {
+    const options = { ...defaultOptions };
+
+    schematicRunner.runSchematicAsync('ng-add', options, appTree).subscribe(tree => {
+      // console.log(appTree.readContent(appModulePath));
+      // const appModule = tree.readContent('./src/app/app.module.ts');
+      // expect(appTree.readContent(appModulePath)).toMatch(
+      //   /import { TranslocoModule, httpLoader, TRANSLOCO_CONFIG, TranslocoConfig } from '@ngneat\/transloco';/
+      // );
+      // done();
+    });
+  });
 });
