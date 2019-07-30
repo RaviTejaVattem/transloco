@@ -119,13 +119,14 @@ export function WebpackLoader() {
   };
 }`;
 
-  const provider = (factory: string) => `{ provide: TRANSLOCO_LOADER, useFactory: ${factory} }`;
+  const httpProvider = `{ provide: TRANSLOCO_LOADER, useFactory: HttpLoader, deps: [HttpClient] }`;
+  const webpackProvider = `{ provide: TRANSLOCO_LOADER, useFactory: WebpackLoader }`;
 
   switch (loader) {
     case Loaders.Http:
-      return { loaderTemplate: httpTemplate, loaderProvider: provider('HttpLoader') };
+      return { loaderTemplate: httpTemplate, loaderProvider: httpProvider };
     case Loaders.Webpack:
-      return { loaderTemplate: webpackTemplate, loaderProvider: provider('WebpackLoader') };
+      return { loaderTemplate: webpackTemplate, loaderProvider: webpackProvider };
   }
 }
 
@@ -133,12 +134,13 @@ export default function(options: SchemaOptions): Rule {
   return (host: Tree, context: SchematicContext) => {
     const langs = options.langs.split(',').map(l => l.trim());
     const project = getProject(host);
-
+    const root = project ? project.root : '';
+    const sourceRoot = project ? project.sourceRoot : 'src';
     // TODO: try not to taking it as HC.
-    const assetsPath = project.root + `src/assets/i18n/`;
+    const assetsPath = root + `src/assets/i18n/`;
     const translateFiles = apply(source(createTranslateFiles(langs)), [move('/', assetsPath)]);
 
-    options.module = findRootModule(host, options.module, project.sourceRoot) as string;
+    options.module = findRootModule(host, options.module, sourceRoot) as string;
     const configProviderTemplate = `{
       provide: TRANSLOCO_CONFIG,
       useValue: {
@@ -152,7 +154,10 @@ export default function(options: SchemaOptions): Rule {
     return chain([
       mergeWith(translateFiles),
       options.loader === Loaders.Http
-        ? addImportsToModuleFile(options, ['HttpClient'], '@angular/common/http')
+        ? chain([
+            addImportsToModuleFile(options, ['HttpClient'], '@angular/common/http'),
+            addImportsToModuleDeclaration(options, ['TranslocoModule, HttpClientModule'])
+          ])
         : noop(),
       addImportsToModuleFile(options, ['environment'], '../environments/environment'),
       addImportsToModuleFile(options, ['TranslocoModule', 'TRANSLOCO_CONFIG', 'TRANSLOCO_LOADER', 'TranslocoConfig']),
