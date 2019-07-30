@@ -28,7 +28,7 @@ function createTranslateFiles(langs: string[]): HostTree {
       `
 {
   "hello": "transloco ${lang}",
-  "dynamic": "transloco {{dynamic}}"
+  "dynamic": "transloco {{value}}"
 }
     `
     );

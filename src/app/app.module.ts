@@ -1,37 +1,33 @@
-import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { TRANSLOCO_CONFIG, TranslocoConfig, TranslocoModule } from '@ngneat/transloco';
+import { HttpClientModule } from '@angular/common/http';
 import { HomeComponent } from './home/home.component';
-import { OnPushComponent } from './on-push/on-push.component';
 import { PageComponent } from './page/page.component';
+import { OnPushComponent } from './on-push/on-push.component';
+import { httpLoader } from './loaders/http.loader';
 import { preLoad } from './preload';
 import { environment } from '../environments/environment';
-import { TranslocoModule, TRANSLOCO_CONFIG, TRANSLOCO_LOADER, TranslocoConfig } from '@ngneat/transloco';
+import { webpackLoader } from './loaders/webpack.loader';
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, PageComponent, OnPushComponent],
-  imports: [BrowserModule, AppRoutingModule, HttpClientModule, TranslocoModule],
+  imports: [BrowserModule, AppRoutingModule, TranslocoModule, HttpClientModule],
   providers: [
     preLoad,
+    httpLoader,
+    // webpackLoader,
     {
       provide: TRANSLOCO_CONFIG,
       useValue: {
-        runtime: false,
-        defaultLang: 'en',
-        prodMode: environment.production
+        prodMode: environment.production,
+        runtime: true,
+        defaultLang: 'en'
       } as TranslocoConfig
-    },
-    { provide: TRANSLOCO_LOADER, useFactory: HttpLoader }
-    // webpackLoader
+    }
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule {}
-
-export function HttpLoader(http: HttpClient) {
-  return function(lang: string) {
-    return http.get(`../assets/i18n/${lang}.json`);
-  };
-}
